@@ -92,7 +92,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 395a68091a82b9a4b8fefb001534fed5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  State: 2
   side: 0
   health: 0
   attackdamage: 0

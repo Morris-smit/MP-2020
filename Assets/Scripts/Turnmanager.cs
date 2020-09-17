@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -20,8 +21,19 @@ public class Turnmanager : MonoBehaviour
     [SerializeField]
     private SuperScene scene;
 
+    [SerializeField]
     private GameObject defButton;
+    [SerializeField]
     private GameObject attButton;
+
+    [SerializeField]
+    private Button target0Button;
+    [SerializeField]
+    private Button target1Button;
+    [SerializeField]
+    private Button target2Button;
+
+    private List<Button> targetButtons;
 
 
     [SerializeField]
@@ -35,8 +47,13 @@ public class Turnmanager : MonoBehaviour
     private void Awake()
     {
         //find the attack and defend buttons
-        attButton = GameObject.FindGameObjectWithTag("AttackButton");
-        defButton = GameObject.FindGameObjectWithTag("DefButton");
+        //attButton = GameObject.FindGameObjectWithTag("AttackButton");
+        //defButton = GameObject.FindGameObjectWithTag("DefButton");
+        targetButtons = new List<Button>();
+
+        targetButtons.Add(target0Button);
+        targetButtons.Add(target1Button);
+        targetButtons.Add(target2Button);
 
         deactivateButtons();
 
@@ -62,16 +79,19 @@ public class Turnmanager : MonoBehaviour
             var ship = playerShips.ElementAt<KeyValuePair<string, GameObject>>(i).Value;
             if (ship != null)
             {
-                ship.GetComponent<Ship>().State = 0;
+                Ship _ship;
+                _ship = ship.GetComponent<Ship>();
+                _ship.SetState(0);
+                
                 // TO DO: highlight shipToHighlight
-                text.text = "what would you like " + ship.name + " to do?";
+                text.text = "what would you like " + _ship.name + " to do?";
                 //select state for ship
                 activateButtons();
                 Button ATB = attButton.GetComponent<Button>();
                 ATB.onClick.AddListener(delegate () { selectStateAttack(ship); });
                 Button DB = defButton.GetComponent<Button>();
                 DB.onClick.AddListener(delegate () { selectStateDefend(ship); });
-                while (ship.GetComponent<Ship>().State != 1 && ship.GetComponent<Ship>().State != 2)
+                while (_ship.GetState() == 0)
                 {
                     yield return null;
                 }
@@ -112,28 +132,48 @@ public class Turnmanager : MonoBehaviour
     IEnumerator Attack()
     {
         deactivateButtons();
-        for (int i = 0; i < playerShips.Count; i++)
+        for (int i = 0; i <= playerShips.Count; i++)
         {
             GameObject ship = playerShips.ElementAt<KeyValuePair<string, GameObject>>(i).Value;
+            Ship _ship = ship.GetComponent<Ship>();
 
             //change the button and UI text
-            Text attbtnText = attButton.GetComponentInChildren<Text>();
-            attbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value.name;
+            //Text attbtnText = attButton.GetComponentInChildren<Text>();
+            //attbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value.name;
             
-            Text defbtnText = defButton.GetComponentInChildren<Text>();
-            defbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value.name;
+            //Text defbtnText = defButton.GetComponentInChildren<Text>();
+            //defbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value.name;
 
-            text.text = "which ship would you like " + ship + " to attack?";
+            text.text = "which ship would you like " + ship.name + " to attack?";
 
+            //GameObject targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value;
             //add the listeners to the buttons
-            GameObject targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value;
-            attButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip);  });
-            targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value;
-            defButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip); });
+
+
+            int count = 0;
+            //create buttons for each tagetable ship
+            foreach (KeyValuePair<string, GameObject>element in computerShips)
+            {
+                
+                Button button = targetButtons[count];
+                GameObject _targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(count).Value;
+                
+                //add a listener to this button and a targetable ship
+                button.onClick.AddListener(delegate () { selectTarget(ship, computerShips.ElementAt<KeyValuePair<string, GameObject>>(count).Value); });
+                //activate the button
+                button.GetComponent<Text>().text = _targetShip.name;
+                button.gameObject.SetActive(true);
+
+                count++;
+            }
+
+            //attButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip);  });
+            //targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value;
+            //defButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip); });
 
             activateButtons();
 
-            while (ship.GetComponent<Ship>().GetTarget() == null)
+            while (_ship.GetTarget() == null)
             {
                 yield return null;
             }
@@ -157,12 +197,12 @@ public class Turnmanager : MonoBehaviour
     {
         if (s == null)
         {
-            print("idk what this is");
+            print("no ship found");
         }
         else
         {
             Ship _s = s.GetComponent<Ship>();
-            _s.State = 1;
+            _s.SetState(1);
             deactivateButtons();
         }
         
@@ -177,7 +217,7 @@ public class Turnmanager : MonoBehaviour
         else
         {
             Ship _s = s.GetComponent<Ship>();
-            _s.State = 2;
+            _s.SetState(2);
             deactivateButtons();
         }
     }
@@ -213,6 +253,11 @@ public class Turnmanager : MonoBehaviour
     {
         attButton.transform.position = pos;
         defButton.transform.position = pos;
+    }
+
+    private void createTargetButton()
+    {
+
     }
     #endregion
 

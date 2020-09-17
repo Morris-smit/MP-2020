@@ -8,7 +8,7 @@ public class Ship : MonoBehaviour
     private Ship Target;
 
     //1 is for attack and 2 is for defend
-    public int State;
+    private int state;
     
     public int side;
 
@@ -31,6 +31,15 @@ public class Ship : MonoBehaviour
         
     }
 
+    public void SetState(int s)
+    {
+        this.state = s;
+    }
+
+    public int GetState()
+    {
+        return this.state;
+    }
     public void Attack()
     {
         print(this.name + " Attacked " + Target + "!");
