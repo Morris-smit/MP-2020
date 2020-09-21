@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -21,19 +20,8 @@ public class Turnmanager : MonoBehaviour
     [SerializeField]
     private SuperScene scene;
 
-    [SerializeField]
     private GameObject defButton;
-    [SerializeField]
     private GameObject attButton;
-
-    [SerializeField]
-    private Button target0Button;
-    [SerializeField]
-    private Button target1Button;
-    [SerializeField]
-    private Button target2Button;
-
-    private List<Button> targetButtons;
 
 
     [SerializeField]
@@ -47,13 +35,8 @@ public class Turnmanager : MonoBehaviour
     private void Awake()
     {
         //find the attack and defend buttons
-        //attButton = GameObject.FindGameObjectWithTag("AttackButton");
-        //defButton = GameObject.FindGameObjectWithTag("DefButton");
-        targetButtons = new List<Button>();
-
-        targetButtons.Add(target0Button);
-        targetButtons.Add(target1Button);
-        targetButtons.Add(target2Button);
+        attButton = GameObject.FindGameObjectWithTag("AttackButton");
+        defButton = GameObject.FindGameObjectWithTag("DefButton");
 
         deactivateButtons();
 
@@ -138,38 +121,20 @@ public class Turnmanager : MonoBehaviour
             Ship _ship = ship.GetComponent<Ship>();
 
             //change the button and UI text
-            //Text attbtnText = attButton.GetComponentInChildren<Text>();
-            //attbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value.name;
+            Text attbtnText = attButton.GetComponentInChildren<Text>();
+            attbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value.name;
             
-            //Text defbtnText = defButton.GetComponentInChildren<Text>();
-            //defbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value.name;
+            Text defbtnText = defButton.GetComponentInChildren<Text>();
+            defbtnText.text = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value.name;
 
             text.text = "which ship would you like " + ship.name + " to attack?";
 
-            //GameObject targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value;
             //add the listeners to the buttons
+            GameObject targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(0).Value;
 
-
-            int count = 0;
-            //create buttons for each tagetable ship
-            foreach (KeyValuePair<string, GameObject>element in computerShips)
-            {
-                
-                Button button = targetButtons[count];
-                GameObject _targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(count).Value;
-                
-                //add a listener to this button and a targetable ship
-                button.onClick.AddListener(delegate () { selectTarget(ship, computerShips.ElementAt<KeyValuePair<string, GameObject>>(count).Value); });
-                //activate the button
-                button.GetComponent<Text>().text = _targetShip.name;
-                button.gameObject.SetActive(true);
-
-                count++;
-            }
-
-            //attButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip);  });
-            //targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value;
-            //defButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip); });
+            attButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip);  });
+            targetShip = computerShips.ElementAt<KeyValuePair<string, GameObject>>(1).Value;
+            defButton.GetComponent<Button>().onClick.AddListener(delegate () { selectTarget(ship, targetShip); });
 
             activateButtons();
 
@@ -253,11 +218,6 @@ public class Turnmanager : MonoBehaviour
     {
         attButton.transform.position = pos;
         defButton.transform.position = pos;
-    }
-
-    private void createTargetButton()
-    {
-
     }
     #endregion
 
